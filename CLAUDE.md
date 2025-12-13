@@ -17,4 +17,4 @@ Use tailwind v4
 
 Use typescript best practices
 
-This project
+This project is a way to look at claude code conversations and debug them but we might add more ai agents later.

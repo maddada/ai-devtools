@@ -1,7 +1,7 @@
-import { ComponentExample } from "@/components/component-example";
+import { ConversationViewer } from "@/components/custom-ui/ConversationViewer";
 
 export function App() {
-return <ComponentExample />;
+  return <ConversationViewer />;
 }
 
 export default App;
