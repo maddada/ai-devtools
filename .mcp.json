@@ -1,11 +1,42 @@
 {
   "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "env": {}
+    },
+    "figma-dev-mode-mcp-server": {
+      "type": "http",
+      "url": "http://127.0.0.1:3845/mcp"
+    },
+    "stock-images-mcp": {
+      "command": "uvx",
+      "args": [
+        "git+https://github.com/Zulelee/stock-images-mcp"
+      ],
+      "env": {
+        "PEXELS_API_KEY": "ydbgkDITPYcG4szN4hEyegIMpCqHKQCs7JbgENQSDIY71svABCxox82n"
+      }
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
+    },
     "shadcn": {
       "command": "npx",
       "args": [
         "shadcn@latest",
         "mcp"
       ]
+    },
+    "beads": {
+      "command": "beads-mcp"
     }
   }
 }

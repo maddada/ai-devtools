@@ -18,3 +18,13 @@ Use tailwind v4
 Use typescript best practices
 
 This project is a way to look at claude code conversations and debug them but we might add more ai agents later.
+
+Always use the bd tool instead of markdown for recording the details of the work we're doing.
+
+Don't write this when commiting code:
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+Don't reference claude code as co-author or generator of work in any PR or commit details.
