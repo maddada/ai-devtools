@@ -1,5 +1,5 @@
 import { AlertTriangle, ChevronDown, ExternalLink } from "lucide-react";
-import { type FC, useState } from "react";
+import { type FC, useMemo, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Collapsible,
@@ -60,31 +60,24 @@ const SchemaErrorDisplay: FC<{ errorLine: string }> = ({ errorLine }) => {
             />
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="bg-background rounded border border-red-200 p-3 mt-2">
+            <div className="bg-background rounded border border-red-200 dark:border-red-800 p-3 mt-2">
               <div className="space-y-3">
-                <Alert variant="destructive" className="border-red-200 bg-red-50">
+                <Alert variant="destructive" className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30">
                   <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle className="text-red-800">
+                  <AlertTitle className="text-red-800 dark:text-red-300">
                     Schema Validation Error
                   </AlertTitle>
-                  <AlertDescription className="text-red-700">
-                    This entry could not be parsed. Please report this issue.{" "}
-                    <a
-                      href="https://github.com/d-kimuson/claude-code-viewer/issues"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-red-600 hover:text-red-800 underline underline-offset-4"
-                    >
+                  <AlertDescription className="text-red-700 dark:text-red-400">
+                    This entry could not be parsed.
                       Report Issue
                       <ExternalLink className="h-3 w-3" />
-                    </a>
                   </AlertDescription>
                 </Alert>
-                <div className="bg-gray-50 border rounded px-3 py-2">
-                  <h5 className="text-xs font-medium text-gray-700 mb-2">
+                <div className="bg-muted border rounded px-3 py-2">
+                  <h5 className="text-xs font-medium text-muted-foreground mb-2">
                     Raw Content
                   </h5>
-                  <pre className="text-xs overflow-x-auto whitespace-pre-wrap break-all font-mono text-gray-800">
+                  <pre className="text-xs overflow-x-auto whitespace-pre-wrap break-all font-mono text-foreground">
                     {errorLine}
                   </pre>
                 </div>
@@ -106,6 +99,19 @@ export const ConversationList: FC<ConversationListProps> = ({
   conversations,
   getToolResult,
 }) => {
+  // Detect if this is an "agent file" where all messages are sidechain
+  // In that case, we should show all messages instead of filtering them out
+  const isAgentFile = useMemo(() => {
+    const nonSpecialConvos = conversations.filter(
+      (c) =>
+        c.type !== "x-error" &&
+        c.type !== "summary" &&
+        c.type !== "file-history-snapshot" &&
+        c.type !== "queue-operation"
+    );
+    if (nonSpecialConvos.length === 0) return false;
+    return nonSpecialConvos.every((c) => c.isSidechain === true);
+  }, [conversations]);
 
   return (
     <ul className="space-y-2">
@@ -133,7 +139,8 @@ export const ConversationList: FC<ConversationListProps> = ({
           conversation.type !== "queue-operation" &&
           conversation.isSidechain;
 
-        if (isSidechain) {
+        // Only filter out sidechain messages if this is NOT an agent file
+        if (isSidechain && !isAgentFile) {
           return [];
         }
 

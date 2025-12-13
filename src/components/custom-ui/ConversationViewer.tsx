@@ -1,5 +1,5 @@
 import { FileUp, Upload } from "lucide-react";
-import { type FC, useCallback, useMemo, useState } from "react";
+import { type FC, useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -28,21 +28,31 @@ const parseJsonlContent = (content: string): ParsedLine[] => {
   });
 };
 
-export const ConversationViewer: FC = () => {
+interface ConversationViewerProps {
+  file?: File | null;
+}
+
+export const ConversationViewer: FC<ConversationViewerProps> = ({ file }) => {
   const [conversations, setConversations] = useState<ParsedLine[]>([]);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleFileLoad = useCallback((file: File) => {
+  const handleFileLoad = useCallback((fileToLoad: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;
       const parsed = parseJsonlContent(content);
       setConversations(parsed);
-      setFileName(file.name);
+      setFileName(fileToLoad.name);
     };
-    reader.readAsText(file);
+    reader.readAsText(fileToLoad);
   }, []);
+
+  useEffect(() => {
+    if (file) {
+      handleFileLoad(file);
+    }
+  }, [file, handleFileLoad]);
 
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,6 +86,16 @@ export const ConversationViewer: FC = () => {
     [handleFileLoad]
   );
 
+  // Detect if this is an agent file and extract agentId
+  const agentId = useMemo(() => {
+    for (const conv of conversations) {
+      if (conv.type === "x-error") continue;
+      if (conv.type === "summary" || conv.type === "file-history-snapshot" || conv.type === "queue-operation") continue;
+      if (conv.agentId) return conv.agentId;
+    }
+    return null;
+  }, [conversations]);
+
   // Build a map of tool_use_id -> tool_result for quick lookup
   const toolResultMap = useMemo(() => {
     const map = new Map<string, ToolResultContent>();
@@ -104,7 +124,7 @@ export const ConversationViewer: FC = () => {
 
   if (conversations.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="h-full flex items-center justify-center p-4 bg-background">
         <Card className="w-full max-w-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -157,13 +177,15 @@ export const ConversationViewer: FC = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b px-4 py-3">
+    <div className="h-full flex flex-col bg-background">
+      <header className="shrink-0 z-10 bg-background/95 backdrop-blur border-b px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <FileUp className="h-5 w-5 text-muted-foreground" />
             <div>
-              <h1 className="font-semibold">Conversation Viewer</h1>
+              <h1 className="font-semibold">
+                {agentId ? `agent-${agentId}` : "Conversation Viewer"}
+              </h1>
               <p className="text-xs text-muted-foreground">{fileName}</p>
             </div>
           </div>
@@ -179,7 +201,7 @@ export const ConversationViewer: FC = () => {
               className="hidden"
               id="file-input-header"
             />
-            <label htmlFor="file-input-header" className="cursor-pointer">
+            <label htmlFor="file-input-header" className="hidden cursor-pointer">
               <Button variant="outline" size="sm" className="pointer-events-none">
                 Load Another
               </Button>
@@ -187,11 +209,13 @@ export const ConversationViewer: FC = () => {
           </div>
         </div>
       </header>
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        <ConversationList
-          conversations={conversations}
-          getToolResult={getToolResult}
-        />
+      <main className="flex-1 overflow-y-auto scrollbar-thin">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <ConversationList
+            conversations={conversations}
+            getToolResult={getToolResult}
+          />
+        </div>
       </main>
     </div>
   );
