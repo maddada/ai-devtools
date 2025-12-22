@@ -8,7 +8,31 @@ import {
 } from "@/components/ui/collapsible";
 import type { Conversation, ErrorJsonl } from "@/lib/conversation-schema";
 import type { ToolResultContent } from "@/lib/conversation-schema/content/ToolResultContentSchema";
+import { conversationToMarkdown } from "@/lib/conversation-to-markdown";
 import { ConversationItem } from "./ConversationItem";
+import { CopyMessageButton } from "./CopyMessageButton";
+import { SaveMessageButton } from "./SaveMessageButton";
+
+const getConversationFilename = (conversation: Conversation): string => {
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+
+  switch (conversation.type) {
+    case "user":
+      return `user-message-${conversation.uuid.slice(0, 8)}-${timestamp}.md`;
+    case "assistant":
+      return `assistant-message-${conversation.uuid.slice(0, 8)}-${timestamp}.md`;
+    case "system":
+      return `system-message-${conversation.uuid.slice(0, 8)}-${timestamp}.md`;
+    case "summary":
+      return `summary-${conversation.leafUuid.slice(0, 8)}-${timestamp}.md`;
+    case "file-history-snapshot":
+      return `file-snapshot-${conversation.messageId.slice(0, 8)}-${timestamp}.md`;
+    case "queue-operation":
+      return `queue-op-${conversation.operation}-${timestamp}.md`;
+    default:
+      return `message-${timestamp}.md`;
+  }
+};
 
 const getConversationKey = (conversation: Conversation) => {
   if (conversation.type === "user") {
@@ -144,19 +168,31 @@ export const ConversationList: FC<ConversationListProps> = ({
           return [];
         }
 
+        const isLeftAligned =
+          isSidechain ||
+          conversation.type === "assistant" ||
+          conversation.type === "system" ||
+          conversation.type === "summary";
+
         return [
           <li
             className={`w-full flex ${
-              isSidechain ||
-              conversation.type === "assistant" ||
-              conversation.type === "system" ||
-              conversation.type === "summary"
-                ? "justify-start"
-                : "justify-end"
+              isLeftAligned ? "justify-start" : "justify-end"
             } animate-in fade-in slide-in-from-bottom-2 duration-300`}
             key={getConversationKey(conversation)}
           >
-            <div className="w-full max-w-3xl lg:max-w-4xl sm:w-[90%] md:w-[85%]">
+            <div className="w-full max-w-3xl lg:max-w-4xl sm:w-[90%] md:w-[85%] group/message relative">
+              <div
+                className={`absolute top-0 ${isLeftAligned ? "-right-8" : "-left-8"} z-10 flex flex-col gap-1`}
+              >
+                <CopyMessageButton
+                  getMarkdown={() => conversationToMarkdown(conversation)}
+                />
+                <SaveMessageButton
+                  getMarkdown={() => conversationToMarkdown(conversation)}
+                  getFilename={() => getConversationFilename(conversation)}
+                />
+              </div>
               {elm}
             </div>
           </li>,

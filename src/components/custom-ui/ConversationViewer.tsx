@@ -1,4 +1,4 @@
-import { FileUp, Upload } from "lucide-react";
+import { Download, FileUp, Upload } from "lucide-react";
 import { type FC, useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import {
 } from "@/lib/conversation-schema";
 import type { ToolResultContent } from "@/lib/conversation-schema/content/ToolResultContentSchema";
 import { ConversationList } from "./conversation";
+import { ExportDialog } from "./ExportDialog";
 
 type ParsedLine = Conversation | ErrorJsonl;
 
@@ -189,11 +190,20 @@ export const ConversationViewer: FC<ConversationViewerProps> = ({ file }) => {
               <p className="text-xs text-muted-foreground">{fileName}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground">
               {conversations.filter((c) => c.type !== "x-error").length}{" "}
               messages
             </span>
+            <ExportDialog
+              conversations={conversations}
+              fileName={fileName || "conversation.jsonl"}
+            >
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </ExportDialog>
             <input
               type="file"
               accept=".jsonl"
