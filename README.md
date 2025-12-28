@@ -8,7 +8,7 @@ System message is attached server side so this doesn't include that but it inclu
 
 Clone the repo then `bun i` then `bun run dev`
 
-Then just click on the folder browser in the top right corner and pick the ~/.claude/projects folder (automatically copied to you clipboard so just hit cmd + v).
+Then just click on the folder browser in the top right corner and pick the ~/.claude/projects folder (automatically copied to you clipboard so just hit cmd + v in the file picker).
 
 <img width="1713" height="1333" alt="2025-12-28_Vivaldi Snapshot_08-11-38" src="https://github.com/user-attachments/assets/e7603d39-ef8b-4865-ab01-b35d79778a7f" />
 
