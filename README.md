@@ -2,7 +2,7 @@
 
 ## Summary:
 
-This app lets you view your full conversations with Claude Code by making the jsonl conversation files that Claude Code stores look nice.
+This app lets you view your full conversations with Claude Code by making the jsonl conversation files that Claude Code stores in `~/.claude/projects` look nice.
 
 Doesn't hide anything including tool calls, warmup messages, etc.
 
