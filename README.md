@@ -14,7 +14,7 @@ System message is attached server side so this doesn't include that but it inclu
 
 Clone the repo then `bun i` then `bun run dev`
 
-Then just click on the folder browser in the top right corner and pick the ~/.claude/projects folder (automatically copied to you clipboard so just hit cmd + v in the file picker).
+Then just click on the folder browser in the top left corner and pick the ~/.claude/projects folder (automatically copied to you clipboard so just hit cmd + v in the file picker).
 
 ## Screenshots:
 
