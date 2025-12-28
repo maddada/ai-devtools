@@ -1,8 +1,9 @@
-import type { FC } from "react";
+import { type FC, isValidElement, type ReactNode } from "react";
 import Markdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkGfm from "remark-gfm";
+import { CodeBlock } from "./CodeBlock";
 
 interface MarkdownContentProps {
   content: string;
@@ -112,45 +113,77 @@ export const MarkdownContent: FC<MarkdownContentProps> = ({
             );
           },
           code({ className, children, ...props }) {
-            const match = /language-(\w+)/.exec(className || "");
-            const isInline = !match;
-
-            if (isInline) {
-              return (
-                <code
-                  className="bg-muted/70 px-2 py-1 rounded-md text-sm font-mono text-foreground border break-all"
-                  {...props}
-                >
-                  {children}
-                </code>
-              );
-            }
-
+            // This handler is only for inline code now
+            // Block code is handled by the pre component
             return (
-              <div className="relative my-6">
-                <div className="flex items-center justify-between bg-muted/30 px-4 py-2 border-b border-border rounded-t-lg">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    {match[1]}
-                  </span>
-                </div>
-                <SyntaxHighlighter
-                  style={oneDark}
-                  language={match[1]}
-                  PreTag="div"
-                  className="!mt-0 !rounded-t-none !rounded-b-lg !border-t-0 !border !border-border"
-                  customStyle={{
-                    margin: 0,
-                    borderTopLeftRadius: 0,
-                    borderTopRightRadius: 0,
-                  }}
-                >
-                  {String(children).replace(/\n$/, "")}
-                </SyntaxHighlighter>
-              </div>
+              <code
+                className="bg-muted/70 px-1.5 py-0.5 rounded text-sm font-mono text-foreground border"
+                {...props}
+              >
+                {children}
+              </code>
             );
           },
-          pre({ children, ...props }) {
-            return <pre {...props}>{children}</pre>;
+          pre({ children }) {
+            // Extract code element from pre children
+            const extractCodeInfo = (
+              node: ReactNode
+            ): { language?: string; content: string } | null => {
+              if (!isValidElement(node)) return null;
+
+              const props = node.props as {
+                className?: string;
+                children?: ReactNode;
+              };
+              if (node.type === "code" || props.className?.includes("language-")) {
+                const match = /language-(\w+)/.exec(props.className || "");
+                const content = String(props.children || "").replace(/\n$/, "");
+                return { language: match?.[1], content };
+              }
+              return null;
+            };
+
+            const codeInfo = extractCodeInfo(children);
+
+            if (codeInfo) {
+              const { language, content } = codeInfo;
+
+              // Use SyntaxHighlighter for known languages
+              if (language) {
+                return (
+                  <div className="relative my-6">
+                    <div className="flex items-center justify-between bg-muted/30 px-4 py-2 border-b border-border rounded-t-lg">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        {language}
+                      </span>
+                    </div>
+                    <SyntaxHighlighter
+                      style={oneDark}
+                      language={language}
+                      PreTag="div"
+                      className="!mt-0 !rounded-t-none !rounded-b-lg !border-t-0 !border !border-border"
+                      customStyle={{
+                        margin: 0,
+                        borderTopLeftRadius: 0,
+                        borderTopRightRadius: 0,
+                      }}
+                    >
+                      {content}
+                    </SyntaxHighlighter>
+                  </div>
+                );
+              }
+
+              // Use CodeBlock for code without language (with wrap toggle)
+              return <CodeBlock>{content}</CodeBlock>;
+            }
+
+            // Fallback for other pre content
+            return (
+              <pre className="overflow-x-auto bg-muted/20 p-4 rounded-lg border border-border my-4 text-sm">
+                {children}
+              </pre>
+            );
           },
           blockquote({ children, ...props }) {
             return (

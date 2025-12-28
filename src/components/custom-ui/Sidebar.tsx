@@ -1,5 +1,5 @@
 import { useState, useMemo, type FC } from 'react';
-import { useDirectoryHandle } from '@/hooks/useDirectoryHandle';
+import type { UseDirectoryHandleReturn } from '@/hooks/useDirectoryHandle';
 import type { JsonlFile } from '@/lib/directory-utils';
 import {
   SidebarHeader,
@@ -9,18 +9,20 @@ import {
   DeleteConversationDialog,
 } from './sidebar-components';
 
-interface SidebarProps {
+type SidebarProps = {
   onFileSelect: (file: File) => void;
   selectedFile: string | null;
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
-}
+  directoryHandle: UseDirectoryHandleReturn;
+};
 
 export const Sidebar: FC<SidebarProps> = ({
   onFileSelect,
   selectedFile,
   isDarkMode,
   onToggleDarkMode,
+  directoryHandle,
 }) => {
   const {
     files,
@@ -30,7 +32,7 @@ export const Sidebar: FC<SidebarProps> = ({
     handleSelectFolder,
     handleRefresh,
     handleDeleteFile,
-  } = useDirectoryHandle();
+  } = directoryHandle;
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
