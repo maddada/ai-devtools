@@ -117,7 +117,7 @@ export const MarkdownContent: FC<MarkdownContentProps> = ({
             // Block code is handled by the pre component
             return (
               <code
-                className="bg-muted/70 px-1.5 py-0.5 rounded text-sm font-mono text-foreground border"
+                className="px-1.5 py-0.5 rounded text-sm font-mono text-foreground"
                 {...props}
               >
                 {children}
@@ -125,7 +125,8 @@ export const MarkdownContent: FC<MarkdownContentProps> = ({
             );
           },
           pre({ children }) {
-            // Extract code element from pre children
+            // Extract code content from pre children
+            // react-markdown wraps code blocks in <pre><code>...</code></pre>
             const extractCodeInfo = (
               node: ReactNode
             ): { language?: string; content: string } | null => {
@@ -135,10 +136,16 @@ export const MarkdownContent: FC<MarkdownContentProps> = ({
                 className?: string;
                 children?: ReactNode;
               };
-              if (node.type === "code" || props.className?.includes("language-")) {
-                const match = /language-(\w+)/.exec(props.className || "");
-                const content = String(props.children || "").replace(/\n$/, "");
-                return { language: match?.[1], content };
+
+              // Check for language class or just extract content if it has children
+              const match = /language-(\w+)/.exec(props.className || "");
+              const content = props.children;
+
+              if (typeof content === "string" || content != null) {
+                return {
+                  language: match?.[1],
+                  content: String(content).replace(/\n$/, ""),
+                };
               }
               return null;
             };

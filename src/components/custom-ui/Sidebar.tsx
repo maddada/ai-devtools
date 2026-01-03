@@ -10,7 +10,7 @@ import {
 } from './sidebar-components';
 
 type SidebarProps = {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (file: File, jsonlFile?: JsonlFile) => void;
   selectedFile: string | null;
   isDarkMode: boolean;
   onToggleDarkMode: () => void;

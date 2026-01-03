@@ -14,7 +14,7 @@ export const CodeBlock: FC<CodeBlockProps> = ({
   language,
   className,
 }) => {
-  const [wordWrap, setWordWrap] = useState(false);
+  const [wordWrap, setWordWrap] = useState(true);
   const [copied, setCopied] = useState(false);
 
   const codeContent =
@@ -42,27 +42,27 @@ export const CodeBlock: FC<CodeBlockProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground"
             onClick={() => setWordWrap(!wordWrap)}
             title={wordWrap ? "Disable word wrap" : "Enable word wrap"}
           >
             {wordWrap ? (
-              <AlignLeft className="h-3.5 w-3.5" />
+              <AlignLeft className="h-4 w-4" />
             ) : (
-              <WrapText className="h-3.5 w-3.5" />
+              <WrapText className="h-4 w-4" />
             )}
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground"
             onClick={handleCopy}
             title="Copy code"
           >
             {copied ? (
-              <Check className="h-3.5 w-3.5 text-green-500" />
+              <Check className="h-4 w-4 text-green-500" />
             ) : (
-              <Copy className="h-3.5 w-3.5" />
+              <Copy className="h-4 w-4" />
             )}
           </Button>
         </div>
@@ -70,7 +70,7 @@ export const CodeBlock: FC<CodeBlockProps> = ({
       <div
         className={cn(
           "bg-muted/20 p-4 text-sm font-mono",
-          wordWrap ? "whitespace-pre-wrap break-words" : "overflow-x-auto"
+          wordWrap ? "whitespace-pre-wrap break-words" : "whitespace-pre overflow-x-auto"
         )}
       >
         <code className="text-foreground">{children}</code>

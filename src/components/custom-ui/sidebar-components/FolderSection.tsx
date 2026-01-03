@@ -10,7 +10,7 @@ interface FolderSectionProps {
   isExpanded: boolean;
   selectedFile: string | null;
   onToggle: () => void;
-  onFileSelect: (file: File) => void;
+  onFileSelect: (file: File, jsonlFile?: JsonlFile) => void;
   onFileDelete: (file: JsonlFile) => void;
 }
 
@@ -49,7 +49,7 @@ export const FolderSection: FC<FolderSectionProps> = ({
               key={file.path}
               file={file}
               isSelected={selectedFile === file.name}
-              onSelect={() => onFileSelect(file.file)}
+              onSelect={() => onFileSelect(file.file, file)}
               onDelete={() => onFileDelete(file)}
             />
           ))}
